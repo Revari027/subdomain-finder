@@ -10,6 +10,7 @@ from utils import passive_scan, brute_force_scan
 
 console = Console()
 
+
 def show_banner():
     banner = pyfiglet.figlet_format("Subdomain Finder", font="slant")
     console.print(f"[bold cyan]{banner}[/bold cyan]")
@@ -25,15 +26,18 @@ def show_banner():
         )
     )
 
+
 def run_passive_scan(domain):
     console.print(f"\n[bold blue]Scanning {domain} using passive mode...[/bold blue]\n")
     subdomains = []
     raw_results = passive_scan(domain)
     total = len(raw_results)
     for i, sub in enumerate(raw_results, start=1):
-        console.print(f"[green][{i}/{total}] {sub}[/green]")
-        subdomains.append(sub)
+        clickable_url = f"http://{sub}"
+        console.print(f"[green][{i}/{total}] {clickable_url}[/green]")
+        subdomains.append(clickable_url)
     return subdomains
+
 
 def run_brute_force_scan(domain, wordlist_path):
     try:
@@ -59,42 +63,50 @@ def run_brute_force_scan(domain, wordlist_path):
             progress.update(task, advance=1)
     return found
 
-def main():
-    show_banner()
 
-    domain = Prompt.ask("[bold yellow]Enter target domain (e.g., example.com)[/bold yellow]")
-    mode = Prompt.ask(
-        "[bold green]Select scan mode[/bold green]",
-        choices=["passive", "brute"],
-        default="passive"
-    )
+def run_program():
+    while True:
+        show_banner()
 
-    if mode == "passive":
-        subdomains = run_passive_scan(domain)
-    else:
-        wordlist = Prompt.ask(
-            "[bold yellow]Enter path to wordlist[/bold yellow]",
-            default="wordlists/subdomains.txt"
+        domain = Prompt.ask("[bold yellow]Enter target domain (e.g., example.com)[/bold yellow]")
+        mode = Prompt.ask(
+            "[bold green]Select scan mode[/bold green]",
+            choices=["passive", "brute"],
+            default="passive"
         )
-        subdomains = run_brute_force_scan(domain, wordlist)
 
-    if subdomains:
-        console.print(f"\n[bold green]Found {len(subdomains)} subdomain(s):[/bold green]")
-        for sub in subdomains:
-            console.print(f" - [cyan]{sub}[/cyan]")
-    else:
-        console.print("[bold red]No subdomains found.[/bold red]")
+        if mode == "passive":
+            subdomains = run_passive_scan(domain)
+        else:
+            wordlist = Prompt.ask(
+                "[bold yellow]Enter path to wordlist[/bold yellow]",
+                default="wordlists/subdomains.txt"
+            )
+            subdomains = run_brute_force_scan(domain, wordlist)
 
-    save = Prompt.ask("\n[bold yellow]Do you want to save the result to a file?[/bold yellow]", choices=["y", "n"], default="n")
-    if save == "y":
-        filename = f"result_{domain}.txt"
-        with open(filename, "w") as f:
+        if subdomains:
+            console.print(f"\n[bold green]Found {len(subdomains)} subdomain(s):[/bold green]")
             for sub in subdomains:
-                f.write(sub + "\n")
-        console.print(f"[green]Result saved to {filename}[/green]")
+                console.print(f" - [cyan]{sub}[/cyan]")
+        else:
+            console.print("[bold red]No subdomains found.[/bold red]")
+
+        save = Prompt.ask("\n[bold yellow]Do you want to save the result to a file?[/bold yellow]", choices=["y", "n"], default="n")
+        if save == "y":
+            filename = f"result_{domain}.txt"
+            with open(filename, "w") as f:
+                for sub in subdomains:
+                    f.write(sub + "\n")
+            console.print(f"[green]Result saved to {filename}[/green]")
+
+        again = Prompt.ask("\n[bold cyan]Do you want to scan another domain?[/bold cyan]", choices=["y", "n"], default="n")
+        if again.lower() != "y":
+            console.print("\n[bold green]Thanks for using Subdomain Finder. Goodbye![/bold green]\n")
+            break
+
 
 if __name__ == "__main__":
     try:
-        main()
+        run_program()
     except KeyboardInterrupt:
         console.print("\n[bold red]Scan interrupted by user (Ctrl+C). Exiting...[/bold red]")
