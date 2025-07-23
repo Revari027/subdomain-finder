@@ -99,7 +99,7 @@ def run_program():
                     f.write(sub + "\n")
             console.print(f"[green]Result saved to {filename}[/green]")
 
-        again = Prompt.ask("\n[bold cyan]Do you want to scan another domain?[/bold cyan]", choices=["y", "n"], default="n")
+        again = Prompt.ask("\n[bold yellow]Do you want to scan another domain?[/bold yellow]", choices=["y", "n"], default="n")
         if again.lower() != "y":
             console.print("\n[bold green]Thanks for using Subdomain Finder. Goodbye![/bold green]\n")
             break
