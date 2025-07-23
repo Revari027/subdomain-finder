@@ -11,7 +11,7 @@ from utils import passive_scan, brute_force_scan
 console = Console()
 
 def show_banner():
-    banner = pyfiglet.figlet_format("UNJ Subdomain Finder", font="slant")
+    banner = pyfiglet.figlet_format("Subdomain Finder", font="slant")
     console.print(f"[bold cyan]{banner}[/bold cyan]")
 
     console.print(
